@@ -1,20 +1,32 @@
-import { useFormik } from "formik";
+import { Formik, Form, Field, ErrorMessage, useField } from 'formik';
 import * as Yup from "yup";
 
+const MyTextInput = ({label, ...props}) => {
+    const [field, meta] = useField(props);
+    return (
+        <>
+            <label htmlFor={props.name}>{label}</label>
+            <input {...props} {...field}/>
+            {meta.touched && meta.error ? (
+                <div className='error'>{meta.error}</div>
+            ) : null}
+        </>
+    )
+}
 
+const CustomForm = () => {
 
-const Form = () => {
-
-    const formik = useFormik({
-        initialValues: {
+    return (
+        <Formik
+            initialValues = {{
             name: '',
             email: '',
             amount: 0,
             currency: '',
             text: '',
             terms: false
-        },
-        validationSchema: Yup.object({
+        }}
+        validationSchema={Yup.object({
             name: Yup.string()
                     .min(2, 'Не меньше 2 символів')
                     .required(`Обов'язкове поле!`),
@@ -30,79 +42,60 @@ const Form = () => {
             terms: Yup.boolean()
                     .required('Необхідна згода!')
                     .oneOf([true], 'Необхідна згода!')
-        }),
-        onSubmit: values => console.log(JSON.stringify(values, null, 2))
-    
-    })
-
-    return (
-        <form className="form" onSubmit={formik.handleSubmit}>
+        })}
+        onSubmit={values => console.log(JSON.stringify(values, null, 2))} 
+        >
+            <Form className="form">
             <h2>Відправити пожертвование</h2>
-            <label htmlFor="name">Ваше ім'я</label>
-            <input
+            <MyTextInput
+                label="Ваше ім'я"
                 id="name"
                 name="name"
                 type="text"
-                value={formik.values.name}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
             />
-            {formik.errors.name && formik.touched.name ? <div className="error">{formik.errors.name}</div> : null}
-            <label htmlFor="email">Ваша пошта</label>
-            <input
+            <MyTextInput
+                label="Ваша пошта"
                 id="email"
                 name="email"
                 type="email"
-                value={formik.values.email}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
             />
-            {formik.errors.email && formik.touched.email ? <div className="error">{formik.errors.email}</div> : null}
             <label htmlFor="amount">Кількість</label>
-            <input
+            <Field
                 id="amount"
                 name="amount"
                 type="number"
-                value={formik.values.amount}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
             />
-            {formik.errors.amount && formik.touched.amount ? <div className="error">{formik.errors.amount}</div> : null}
+            <ErrorMessage className="error" name="amount" component="div"/>
             <label htmlFor="currency">Валюта</label>
-            <select
+            <Field
                 id="currency"
                 name="currency"
-                value={formik.values.currency}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}>
+                as="select">
                     <option value="">Оберіть валюту</option>
                     <option value="USD">USD</option>
                     <option value="UAH">UAH</option>
                     <option value="RUB">RUB</option>
-            </select>
-            {formik.errors.currency && formik.touched.currency ? <div className="error">{formik.errors.currency}</div> : null}
+            </Field>
+            <ErrorMessage className="error" name="currency" component="div"/>
             <label htmlFor="text">Ваше повідомлення</label>
-            <textarea 
+            <Field 
                 id="text"
                 name="text"
-                value={formik.values.text}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
+                as="textarea"
             />
-            {formik.errors.text && formik.touched.text ? <div className="error">{formik.errors.text}</div> : null}
+            <ErrorMessage className="error" name="text" component="div"/>
             <label className="checkbox">
-                <input 
+                <Field 
                 name="terms" 
-                type="checkbox" 
-                value={formik.values.terms}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}/>
+                type="checkbox"
+                 />
                 Погоджуєтесь з політикою конфіденціальності?
             </label>
-            {formik.errors.terms && formik.touched.terms ? <div className="error">{formik.errors.terms}</div> : null}
+            <ErrorMessage className="error" name="terms" component="div"/>
             <button type="submit">Відправити</button>
-        </form>
+            </Form>
+        </Formik>
     )
 }
 
-export default Form;
+export default CustomForm;
